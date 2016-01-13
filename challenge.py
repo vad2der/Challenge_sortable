@@ -8,7 +8,6 @@ Approach: scoring matches
 import json
 import os
 import codecs
-from threading import Thread
 from multiprocessing.pool import ThreadPool
 from multiprocessing import Lock
 import iso8601
@@ -179,9 +178,9 @@ def findMatchesKnownFields(lock, template, source, field, strict=None, foreign_k
                             s not in result1 and \
                             s.keys() not in pointless_fields:
                 if len(refined_template) > 2:
-                    if refined_template[0] in str(s.values()).lower() and \
-                            refined_template[1] in str(s.values()).lower() and \
-                            refined_template[2] in str(s.values()).lower():
+                    if refined_template[-1] in str(s.values()).lower() and \
+                            refined_template[-2] in str(s.values()).lower() or \
+                            refined_template[-3] in str(s.values()).lower():
                         result1.append(s)
                 elif len(refined_template) > 1:
                     if refined_template[0] in str(s.values()).lower() and \
@@ -288,7 +287,8 @@ def main():
     printObjects(se, 0, 10)
     lock.release()
     """
-    
+
+    # example with unknown fields
     f1 = open(selection_file, 'w')
     f1.close()
     for product in products:
