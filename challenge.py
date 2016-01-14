@@ -11,6 +11,7 @@ import codecs
 from multiprocessing.pool import ThreadPool
 from multiprocessing import Lock
 import iso8601
+from collections import OrderedDict
 
 
 """
@@ -68,19 +69,12 @@ def printObjects(products, start = None, finish=None):
             print ('{} {} {}'.format(k, ": ", v))
 
 
-def saveObjects(selection, product_name, name):
-    start = "{\n"
-    if os.stat(name).st_size > 0:
-        start = ",{\n"
+def saveObjects(selection, product_name, name):    
+    data = OrderedDict([('product_name', product_name), 
+                          ('listings', selection)])
     with open(name, 'a') as outfile:
-        outfile.write(start)
-        outfile.write("product_name: "+product_name+"\n")
-        outfile.write("listing:\n")
-        if len(selection) > 0:
-            for s in selection:
-                json.dump(s, outfile, ensure_ascii=False)
-                outfile.write('\n')
-        outfile.write("}\n")
+        json.dump(data, outfile, sort_keys=False, ensure_ascii=False)
+        outfile.write('\n')
 
 		
 def findForKeys(template, source):
