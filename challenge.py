@@ -11,6 +11,7 @@ import codecs
 from multiprocessing.pool import ThreadPool
 from multiprocessing import Lock
 import iso8601
+from collections import OrderedDict
 
 
 """
@@ -69,18 +70,10 @@ def printObjects(products, start = None, finish=None):
 
 
 def saveObjects(selection, product_name, name):
-    start = "{\n"
-    if os.stat(name).st_size > 0:
-        start = ",{\n"
+    data = OrderedDict([('product_name', product_name), ('listings', selection)])
     with open(name, 'a') as outfile:
-        outfile.write(start)
-        outfile.write("product_name: "+product_name+"\n")
-        outfile.write("listing:\n")
-        if len(selection) > 0:
-            for s in selection:
-                json.dump(s, outfile, ensure_ascii=False)
-                outfile.write('\n')
-        outfile.write("}\n")
+        json.dump(data, outfile, sort_keys=False, ensure_ascii=False)
+        outfile.write('\n')
 
 		
 def findForKeys(template, source):
@@ -177,10 +170,9 @@ def findMatchesKnownFields(lock, template, source, field, strict=None, foreign_k
             if template[foreign_key1].lower() in s[foreign_key2].lower() and \
                             s not in result1 and \
                             s.keys() not in pointless_fields:
-                if len(refined_template) > 2:
+                if len(refined_template) > 1:
                     if refined_template[-1] in str(s.values()).lower() and \
-                            refined_template[-2] in str(s.values()).lower() or \
-                            refined_template[-3] in str(s.values()).lower():
+                            refined_template[-2] in str(s.values()).lower():
                         result1.append(s)
                 elif len(refined_template) > 1:
                     if refined_template[0] in str(s.values()).lower() and \
